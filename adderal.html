@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Library</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-container {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 400px;
+            font-size: 1em;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-button {
+            padding: 12px 30px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-button:hover {
+            background-color: #ff5252;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            word-break: break-word;
+        }
+
+        .game-card p {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .play-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+            width: 100%;
+        }
+
+        .play-button:hover {
+            transform: scale(1.05);
+        }
+
+        .game-player {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-player h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #gameFrame {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .game-link {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: transform 0.2s ease;
+        }
+
+        .game-link:hover {
+            transform: scale(1.05);
+        }
+
+        .no-results {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+
+        .back-button {
+            background-color: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #45b9b0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            #gameFrame {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 Game Library</h1>
+            <p>Click on any game to play!</p>
+        </header>
+
+        <!-- Loading View -->
+        <div id="loadingView" class="hidden">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading games...</p>
+            </div>
+        </div>
+
+        <!-- Error View -->
+        <div id="errorView" class="hidden">
+            <div class="error-message" id="errorMessage"></div>
+            <button class="back-button" onclick="retryLoadGames()" style="display: block; margin: 20px auto;">Retry</button>
+        </div>
+
+        <!-- Games List View -->
+        <div id="gamesList" class="hidden">
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Search games..."
+                    autocomplete="off"
+                >
+                <button class="search-button" onclick="performSearch()">Search</button>
+            </div>
+
+            <div id="gamesGrid" class="games-grid"></div>
+            <div id="noResults" class="no-results hidden">No games found. Try a different search!</div>
+        </div>
+
+        <!-- Game Player View -->
+        <div id="gamePlayer" class="hidden">
+            <button class="back-button" onclick="backToList()">← Back to Games</button>
+            <div class="game-player">
+                <h2 id="gameTitle">Game</h2>
+                <div id="gameFrame"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allGames = [];
+        let filteredGames = [];
+
+        // Normalize game name: lowercase and replace spaces with hyphens
+        function normalizeGameName(name) {
+            return name
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, '-');
+        }
+
+        // Fetch games from GitHub raw JSON
+        async function loadGames() {
+            try {
+                document.getElementById('loadingView').classList.remove('hidden');
+                document.getElementById('errorView').classList.add('hidden');
+                document.getElementById('gamesList').classList.add('hidden');
+
+                const response = await fetch('https://raw.githubusercontent.com/phexusmath/DevBuild/main/base_urls.json');
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to load games: ${response.status} ${response.statusText}`);
+                }
+
+                allGames = await response.json();
+
+                console.log(`Loaded ${allGames.length} games:`, allGames);
+
+                filteredGames = [...allGames];
+                document.getElementById('loadingView').classList.add('hidden');
+                document.getElementById('gamesList').classList.remove('hidden');
+                displayGames(allGames);
+
+                // Add enter key support for search
+                document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        performSearch();
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error loading games:', error);
+                showError(`Error loading games: ${error.message}`);
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            document.getElementById('loadingView').classList.add('hidden');
+            document.getElementById('gamesList').classList.add('hidden');
+            document.getElementById('errorView').classList.remove('hidden');
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        // Retry loading games
+        function retryLoadGames() {
+            loadGames();
+        }
+
+        // Display games in grid
+        function displayGames(gamesToDisplay) {
+            const gamesGrid = document.getElementById('gamesGrid');
+            const noResults = document.getElementById('noResults');
+
+            if (gamesToDisplay.length === 0) {
+                gamesGrid.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+
+            noResults.classList.add('hidden');
+            gamesGrid.innerHTML = gamesToDisplay.map((game, index) => `
+                <div class="game-card" onclick="loadGame('${game.name.replace(/'/g, "\\'")}', '${game.url}')">
+                    <h3>🎮 ${game.name}</h3>
+                    <p>Click to play</p>
+                    <button class="play-button">▶ Play Now</button>
+                </div>
+            `).join('');
+        }
+
+        // Search functionality
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                filteredGames = [...allGames];
+            } else {
+                filteredGames = allGames.filter(game => 
+                    game.name.toLowerCase().includes(searchTerm) ||
+                    normalizeGameName(game.name).includes(normalizeGameName(searchTerm))
+                );
+            }
+
+            displayGames(filteredGames);
+        }
+
+        // Load game in player
+        function loadGame(gameName, gameUrl) {
+            document.getElementById('gamesList').classList.add('hidden');
+            document.getElementById('gamePlayer').classList.remove('hidden');
+            document.getElementById('gameTitle').textContent = gameName;
+            
+            console.log(`Loading game: ${gameName}`);
+            normaliedname = normalizeGameName(gameName);
+            
+            const gameLink = "https://raw.githubusercontent.com/phexusmath/DevBuild/main/files/" + normaliedname + "/index.html";
+            
+            console.log(`From URL: ${gameLink}`);
+            
+            // Create a link instead of iframe
+            const linkElement = document.getElementById('gameFrame');
+            linkElement.innerHTML = `<a href="${gameLink}" target="_blank" class="game-link">▶ Open Game in New Tab</a>`;
+            
+            window.scrollTo(0, 0);
+        }
+
+        // Back to games list
+        function backToList() {
+            document.getElementById('gamePlayer').classList.add('hidden');
+            document.getElementById('gameFrame').innerHTML = '';
+            document.getElementById('gamesList').classList.remove('hidden');
+            document.getElementById('searchInput').value = '';
+            displayGames(allGames);
+            window.scrollTo(0, 0);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGames();
+        });
+    </script>
+</body>
+</html>
