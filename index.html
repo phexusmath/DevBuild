@@ -130,45 +130,22 @@
         .game-player {
             background: white;
             border-radius: 15px;
-            padding: 20px;
-            margin-top: 30px;
+            overflow: hidden;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .game-player h2 {
-            color: #333;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        #gameFrame {
-            text-align: center;
-            padding: 40px;
-        }
-
-        .game-link {
-            display: inline-block;
-            padding: 15px 30px;
+        .game-player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: bold;
-            font-size: 1.1em;
-            transition: transform 0.2s ease;
         }
 
-        .game-link:hover {
-            transform: scale(1.05);
-        }
-
-        .no-results {
-            text-align: center;
-            color: white;
-            font-size: 1.2em;
-            padding: 40px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 15px;
+        .game-player-header h2 {
+            margin: 0;
+            font-size: 1.5em;
         }
 
         .back-button {
@@ -179,12 +156,28 @@
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
-            margin-bottom: 20px;
             transition: background-color 0.3s ease;
         }
 
         .back-button:hover {
             background-color: #45b9b0;
+        }
+
+        .game-iframe-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+        }
+
+        .game-iframe-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
         }
 
         .hidden {
@@ -222,6 +215,15 @@
             text-align: center;
         }
 
+        .no-results {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+
         @media (max-width: 768px) {
             header h1 {
                 font-size: 1.8em;
@@ -231,8 +233,10 @@
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
 
-            #gameFrame {
-                padding: 20px;
+            .game-player-header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
             }
         }
     </style>
@@ -277,10 +281,14 @@
 
         <!-- Game Player View -->
         <div id="gamePlayer" class="hidden">
-            <button class="back-button" onclick="backToList()">← Back to Games</button>
             <div class="game-player">
-                <h2 id="gameTitle">Game</h2>
-                <div id="gameFrame"></div>
+                <div class="game-player-header">
+                    <h2 id="gameTitle">Game</h2>
+                    <button class="back-button" onclick="backToList()">← Back to Games</button>
+                </div>
+                <div class="game-iframe-container">
+                    <iframe id="gameIframe" src="" allowfullscreen></iframe>
+                </div>
             </div>
         </div>
     </div>
@@ -304,7 +312,7 @@
                 document.getElementById('errorView').classList.add('hidden');
                 document.getElementById('gamesList').classList.add('hidden');
 
-                const response = await fetch('https://raw.githubusercontent.com/phexusmath/DevBuild/main/base_urls.json');
+                const response = await fetch('/base_urls.json');
                 
                 if (!response.ok) {
                     throw new Error(`Failed to load games: ${response.status} ${response.statusText}`);
@@ -389,15 +397,13 @@
             document.getElementById('gameTitle').textContent = gameName;
             
             console.log(`Loading game: ${gameName}`);
-            normaliedname = normalizeGameName(gameName);
+            const normalizedName = normalizeGameName(gameName);
             
-            const gameLink = "https://raw.githubusercontent.com/phexusmath/DevBuild/main/files/" + normaliedname + "/index.html";
+            const gameIframeUrl = `/files/${normalizedName}/index.html`;
             
-            console.log(`From URL: ${gameLink}`);
+            console.log(`Loading iframe from: ${gameIframeUrl}`);
             
-            // Create a link instead of iframe
-            const linkElement = document.getElementById('gameFrame');
-            linkElement.innerHTML = `<a href="${gameLink}" target="_blank" class="game-link">▶ Open Game in New Tab</a>`;
+            document.getElementById('gameIframe').src = gameIframeUrl;
             
             window.scrollTo(0, 0);
         }
@@ -405,7 +411,7 @@
         // Back to games list
         function backToList() {
             document.getElementById('gamePlayer').classList.add('hidden');
-            document.getElementById('gameFrame').innerHTML = '';
+            document.getElementById('gameIframe').src = '';
             document.getElementById('gamesList').classList.remove('hidden');
             document.getElementById('searchInput').value = '';
             displayGames(allGames);
