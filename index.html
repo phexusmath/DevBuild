@@ -65,7 +65,6 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
         }
 
-        /* Improved Game View */
         .hidden { display: none; }
         
         #gameView {
@@ -86,21 +85,18 @@
             margin-bottom: 20px;
         }
 
-        /* Container holds the shape */
         .game-container {
             position: relative;
             width: 100%;
             background: #000;
-            /* Round only the top corners of the main container */
             border-radius: 16px 16px 0 0; 
             overflow: hidden;
             box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.5);
             border: 1px solid #334155;
-            border-bottom: none; /* Remove bottom border to blend with bar */
+            border-bottom: none; 
             aspect-ratio: 16 / 9;
         }
 
-        /* Loading Spinner */
         .loader {
             position: absolute;
             top: 50%; left: 50%;
@@ -121,7 +117,6 @@
             z-index: 2;
         }
 
-        /* UIX Control Bar */
         .game-bar {
             display: flex;
             justify-content: space-between;
@@ -175,7 +170,7 @@
         </div>
 
         <div class="game-bar">
-            <span style="font-size: 0.8rem; color: #94a3b8;">Status: Ready to play</span>
+            <span id="gameSource" style="font-size: 0.8rem; color: #94a3b8;">Status: Ready to play</span>
             <button class="btn btn-fs" onclick="toggleFullScreen()">
                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4A1.5 1.5 0 0 1 1.5 0h4a.5.5 0 0 1 0 1h-4zM10 .5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 16 1.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5zM.5 10a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 0 14.5v-4a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v4a1.5 1.5 0 0 1-1.5 1.5h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5z"/></svg>
                 Full Screen
@@ -188,12 +183,14 @@
     let gamesData = [];
 
     async function loadGames() {
-        // Mock data for demonstration if list.json is missing
         try {
-            const response = await fetch('/list.json');
+            // Updated to look in the root where list.json is saved
+            const response = await fetch('list.json');
+            if (!response.ok) throw new Error("File not found");
             gamesData = await response.json();
         } catch (err) {
-            gamesData = [{name: "Sample Game"}]; 
+            console.error("Error loading games:", err);
+            gamesData = [{name: "Error Loading Games", url: ""}]; 
         }
         renderGames(gamesData);
     }
@@ -202,6 +199,7 @@
         const grid = document.getElementById('gameGrid');
         grid.innerHTML = '';
         games.forEach(game => {
+            if(!game.url) return;
             const card = document.createElement('div');
             card.className = 'game-card';
             card.innerHTML = `<h3>${game.name}</h3>`;
@@ -217,12 +215,18 @@
     }
 
     function launchGame(game) {
-        const folderName = game.name.toLowerCase().replace(/\s+/g, '-');
-        const gameUrl = `files/${folderName}/index.html`;
+        // IMPORTANT: We now use the exact URL from the JSON
+        // We append /index.html if your folders don't auto-redirect
+        const finalUrl = game.url.endsWith('/') ? `${game.url}index.html` : `${game.url}/index.html`;
 
         document.getElementById('iframeLoader').style.display = 'block';
         document.getElementById('currentGameTitle').innerText = game.name;
-        document.getElementById('gameFrame').src = gameUrl;
+        document.getElementById('gameFrame').src = finalUrl;
+        
+        // Optional: Show which category it's from
+        const source = game.url.includes('/complete/') ? 'Complete Collection' : 'Files Library';
+        document.getElementById('gameSource').innerText = `Source: ${source}`;
+        
         showPage('gameView');
     }
 
