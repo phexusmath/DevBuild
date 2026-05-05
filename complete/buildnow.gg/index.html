@@ -1,35 +1,28 @@
-
-<!DOCTYPE html>
-<html>
 <head>
-<title>BuildNow GG Game Files</title>
-<link rel="stylesheet" href="gameloader2020.css" />
-<script src="gameloader2020.js"></script>
-<script src="gameloader-helper.js"></script>
-<meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Buildnow.gg - play on maxwellstevenson.com</title>
+
+  <link rel="stylesheet" href="game-loader/gameloader2020.css" />
+  <script src="game-loader/gameloader2020.js"></script>
+  <script src="game-loader/gameloader-helper.js"></script>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
 <body>
-<script type="text/javascript">
-  var options = {
-    logo: "logo.png",
-    gameName: "BuildNow GG",
-    gameNameEu: "BuildNow GG",
-    gameUrl: "41246",
-    allowFullscreen: true,
-    locale: "en_US",
-    loader: "unity2020",
-    loaderOptions: {
-      unityLoaderUrl: "Build/BuildNow.loader.js",
-      unityConfigOptions: {
-        dataUrl: "Build/BuildNow.data.br",
-        frameworkUrl: "Build/BuildNow.framework.js.br?v=2",
-        codeUrl: "Build/BuildNow.wasm.br",
-        streamingAssetsUrl: "StreamingAssets"
+  <script type="text/javascript">
+    var options = {
+      author: "Vseigru, cloudirector",
+      gameName: "BuildNow GG",
+      locale: "en_US",
+      allowFullscreen: true,
+      loaderOptions: {
+        unityLoaderUrl: "Build/BuildNow.loader.js",
+        unityConfigOptions: {
+          dataUrl: "Build/BuildNow.data",
+          frameworkUrl: "Build/BuildNow.framework.js",
+          codeUrl: "Build/BuildNow.wasm"
+        }
       }
-    },
     };
-  GameInit.load(options);   
-</script>
+    GameInit.load(options);
+  </script>
 </body>
-</html>
