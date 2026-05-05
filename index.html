@@ -59,7 +59,7 @@
 
     async function loadGames() {
         try {
-            const response = await fetch('/base_urls.json');
+            const response = await fetch('/list.json');
             gamesData = await response.json();
             renderGames(gamesData);
         } catch (err) {
