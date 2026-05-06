@@ -1,17 +1,21 @@
-rip games from here https://github.com/bubbls/UGS-Assets/tree/main
-this is the complete games. 
+# size
 
-also you can just striaght download the html folders from here 
-https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/
+[![Repo Size](https://img.shields.io/github/repo-size/phexusmath/phexusmath.github.io)](https://github.com/phexusmath/phexusmath.github.io)
 
-they have to be in the files folder if you copy from the google doc. 
-![Repo Size](https://img.shields.io/github/repo-size/phexusmath/phexusmath.github.io)
+## get games here
 
-important: here is all the webport games. 
-these will work im pretty sure
-https://github.com/genizy/web-port/tree/main
-to do list:
-can you fix 1v1.lol 
-ok literally every game is broken like most of them. 
-all the runs are broken.
-<img width="225" height="225" alt="image" src="https://github.com/user-attachments/assets/e4dba96a-ada7-4d12-943c-a7e9ad1b9880" />
+These are the primary sources being used to populate the repository:
+
+| Source | Link | Notes |
+| :--- | :--- | :--- |
+| **lots of games** | [GitHub Repo](https://github.com/bubbls/UGS-Assets/tree/main) | just download dem |
+| **web ports** | [GitHub Repo](https://github.com/genizy/web-port/tree/main) | you can make these 1 file i can show you how |
+| **one file games** | [Google Doc](https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/) | these go in files |
+
+---
+
+## to-do
+
+
+- [ ] fix 1v1.lol
+- [ ] fix run
