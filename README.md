@@ -10,4 +10,6 @@ they have to be in the files folder if you copy from the google doc.
 
 to do list:
 can you fix 1v1.lol 
+ok literally every game is broken like most of them. 
+all the runs are broken.
 <img width="225" height="225" alt="image" src="https://github.com/user-attachments/assets/e4dba96a-ada7-4d12-943c-a7e9ad1b9880" />
