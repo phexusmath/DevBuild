@@ -1,0 +1,74 @@
+:root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --accent: #7000ff;
+    --text: #ffffff;
+    --text-dim: #88888e;
+    --border: #24242a;
+}
+
+body {
+    margin: 0; font-family: 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg); color: var(--text);
+    display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+}
+
+/* Header & Search */
+#top-bar {
+    height: 65px; background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; padding: 0 25px;
+}
+
+.search-container { flex: 1; max-width: 500px; margin: 0 40px; position: relative; }
+#gameSearch {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    padding: 10px 15px; border-radius: 6px; color: white; outline: none;
+}
+#gameSearch:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(112, 0, 255, 0.2); }
+
+/* Game Grid */
+#content-area { flex: 1; overflow-y: auto; padding: 40px; }
+#game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+
+.game-card {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 25px; border-radius: 12px; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: all 0.2s ease;
+}
+
+.game-card:hover {
+    background: #1c1c22; border-color: var(--accent);
+    transform: translateY(-3px);
+}
+
+.game-card h3 { margin: 0; font-weight: 500; font-size: 1.1rem; }
+.game-card i { color: var(--accent); font-size: 1.4rem; opacity: 0; transition: 0.2s; }
+.game-card:hover i { opacity: 1; }
+
+/* Viewport & Fullscreen */
+#game-viewport { display: none; position: absolute; inset: 0; background: #000; flex-direction: column; }
+.viewport-controls {
+    display: flex; justify-content: space-between; padding: 8px 15px;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.viewport-controls button {
+    background: var(--bg); border: 1px solid var(--border); color: white;
+    padding: 5px 15px; border-radius: 4px; cursor: pointer;
+}
+#gameFrame { border: none; flex: 1; width: 100%; }
+
+/* Connectivity Status */
+.status-indicator { font-size: 0.75rem; color: var(--text-dim); display: flex; align-items: center; gap: 10px; }
+.dot { width: 6px; height: 6px; background: #555; border-radius: 50%; }
+.dot.online { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
+.type-badge {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    background: var(--border);
+    color: var(--text-dim);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 5px;
+    display: inline-block;
+}
