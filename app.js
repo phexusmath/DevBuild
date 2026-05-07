@@ -68,9 +68,11 @@ async function loadGame(e) {
     let t = e.url;
     t.endsWith("/") || (t += "/");
 
+    let isCompleteGame = typeof e.url === "string" && e.url.indexOf("/complete/") !== -1;
+
     let fetchUrl = t;
-    let baseHref = "https://phexusmath.github.io/";
-    let isCompleteGame = /\/complete\//.test(e.url);
+    // Default base: the game's own page URL (without forced trailing slash).
+    let baseHref = e.url;
 
     if (isCompleteGame) {
         // Games in the /complete folder always use their full phexusmath.github.io path as the base URL.
@@ -78,7 +80,7 @@ async function loadGame(e) {
         if (isCdnAvailable) {
             fetchUrl = toCdnUrl(e.url);
         }
-        baseHref = t;
+        baseHref = e.url;
     } else if (e.cdn) {
         fetchUrl = e.cdn;
         baseHref = e.cdn;
