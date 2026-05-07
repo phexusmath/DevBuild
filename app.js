@@ -6,7 +6,6 @@ const gridEl = document.getElementById("game-grid"),
     statusText = document.getElementById("statusText"),
     statusDot = document.querySelector(".dot");
 let allGames = [],
-    baseUrls = [],
     currentBlobUrl = null,
     activeBaseUrl = "",
     isCdnAvailable = !1;
@@ -38,30 +37,36 @@ async function checkConnectivity() {
     statusText.textContent = "Local Mode Only", statusDot.style.backgroundColor = "#ff9800"
 }
 
-function getGameBaseUrl(e) {
-    let t = baseUrls.find(t => t.name === e);
-    if (!t) return null;
-    let a = t.url;
-    return (a.includes("githack.com") && (a = a.replace("raw.githack.com", "cdn.jsdelivr.net/gh").replace("rawcdn.githack.com", "cdn.jsdelivr.net/gh").replace(/(cdn\.jsdelivr\.net\/gh\/[^\/]+\/[^\/]+)\//, "$1@")), "githack" === activeBaseUrl) ? a.replace("https://cdn.jsdelivr.net/gh/", "https://raw.githack.com/").replace("@", "/") : a
+function toCdnUrl(pageUrl) {
+    // Convert https://phexusmath.github.io/path to jsDelivr or GitHack URL
+    let path = pageUrl.replace("https://phexusmath.github.io/", "");
+    if ("githack" === activeBaseUrl) {
+        return `https://raw.githack.com/phexusmath/phexusmath.github.io/main/${path}/`;
+    }
+    return `https://cdn.jsdelivr.net/gh/phexusmath/phexusmath.github.io@main/${path}/`;
 }
+
 async function loadGame(e) {
     let t = e.url;
     t.endsWith("/") || (t += "/");
-    try {
-        let a = await fetch(`${t}index.html`),
-            l = await a.text();
-        
-        let r = e.cdn;
-        let baseTag = "";
 
-        if (isCdnAvailable && r) {
-            if ("githack" === activeBaseUrl) {
-                r = r.replace("https://cdn.jsdelivr.net/gh/", "https://raw.githack.com/").replace("@", "/");
-            }
-            baseTag = `<base href="${r}">`;
-        } else {
-            baseTag = `<base href="https://phexusmath.github.io/">`;
-        }
+    let fetchUrl = t;
+    let baseHref = "https://phexusmath.github.io/";
+
+    if (e.cdn) {
+        fetchUrl = e.cdn;
+        baseHref = e.cdn;
+    } else if (isCdnAvailable) {
+        let cdnUrl = toCdnUrl(e.url);
+        fetchUrl = cdnUrl;
+        baseHref = cdnUrl;
+    }
+
+    try {
+        let a = await fetch(`${fetchUrl}index.html`),
+            l = await a.text();
+
+        let baseTag = `<base href="${baseHref}">`;
 
         l = l.replace(/<base[^>]*>/gi, "");
         if (l.includes("<head>")) {
@@ -74,12 +79,12 @@ async function loadGame(e) {
         let s = new Blob([l], {
             type: "text/html"
         });
-        
+
         currentBlobUrl = URL.createObjectURL(s);
         gameFrame.src = currentBlobUrl;
         libraryEl.style.display = "none";
         viewportEl.style.display = "flex";
-        
+
     } catch (i) {
         console.error("Load Error:", i);
     }
@@ -87,10 +92,8 @@ async function loadGame(e) {
 async function init() {
     await checkConnectivity();
     try {
-        let e = await fetch("base_urls.json");
-        e.ok && (baseUrls = await e.json());
-        let t = await fetch("list.json");
-        if (!t.ok) throw Error("list.json not found");
+        let t = await fetch("combined_games.json");
+        if (!t.ok) throw Error("combined_games.json not found");
         let a = await t.json();
         allGames = a.sort((e, t) => e.name.localeCompare(t.name)), renderGrid(allGames)
     } catch (l) {
