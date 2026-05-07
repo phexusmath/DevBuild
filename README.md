@@ -25,3 +25,8 @@ Some of the youtube playables games are broken. I can fix them all when i get ho
 - [ ] fix 1v1.lol
 - [ ] fix run
 - [ ] fix all the other games
+
+
+
+
+Why are you lowkeneuinly a retard 
