@@ -1,3 +1,5 @@
+## DONT ADD GAMES I CAN MAKE THEM ALL WORK WAIT TILL I SAY SO
+
 # size
 
 [![Repo Size](https://img.shields.io/github/repo-size/phexusmath/phexusmath.github.io)](https://github.com/phexusmath/phexusmath.github.io)
