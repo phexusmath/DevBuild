@@ -30,3 +30,4 @@ Some of the youtube playables games are broken. I can fix them all when i get ho
 
 
 Why are you lowkeneuinly a retard 
+Maxwell slope 3 wont work because it wont let me put the suka blyat unity loader in at the same time as the jquery-3.4 thingymabob
