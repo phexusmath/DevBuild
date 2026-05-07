@@ -8,7 +8,25 @@ const gridEl = document.getElementById("game-grid"),
 let allGames = [],
     currentBlobUrl = null,
     activeBaseUrl = "",
-    isCdnAvailable = !1;
+    isCdnAvailable = !1,
+    shimSource = null;
+
+async function getShimSource() {
+    if (shimSource !== null) return shimSource;
+    try {
+        let r = await fetch("shim.js", { cache: "no-cache" });
+        if (r.ok) {
+            shimSource = await r.text();
+        } else {
+            shimSource = "";
+            console.warn("shim.js fetch returned non-OK status:", r.status);
+        }
+    } catch (err) {
+        shimSource = "";
+        console.warn("Could not load shim.js:", err);
+    }
+    return shimSource;
+}
 const normalize = e => e.toLowerCase().trim().replace(/\s+/g, "-");
 async function checkConnectivity() {
     for (let e of (statusText.textContent = "Checking bypass routes...", [{
@@ -75,12 +93,22 @@ async function loadGame(e) {
             l = await a.text();
 
         let baseTag = `<base href="${baseHref}">`;
+        let shimTag = "";
+        if (e.inject === true) {
+            let src = await getShimSource();
+            if (src) {
+                // Escape any closing </script> sequences inside the shim source.
+                let safeSrc = src.replace(/<\/script>/gi, "<\\/script>");
+                shimTag = `<script>${safeSrc}</script>`;
+            }
+        }
 
         l = l.replace(/<base[^>]*>/gi, "");
+        let injection = `${baseTag}${shimTag ? "\n    " + shimTag : ""}`;
         if (l.includes("<head>")) {
-            l = l.replace("<head>", `<head>\n    ${baseTag}`);
+            l = l.replace("<head>", `<head>\n    ${injection}`);
         } else {
-            l = baseTag + l;
+            l = injection + l;
         }
 
         currentBlobUrl && URL.revokeObjectURL(currentBlobUrl);
