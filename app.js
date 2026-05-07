@@ -1,2 +1,110 @@
-const gridEl=document.getElementById("game-grid"),viewportEl=document.getElementById("game-viewport"),libraryEl=document.getElementById("library-hub"),gameFrame=document.getElementById("gameFrame"),searchInput=document.getElementById("gameSearch"),statusText=document.getElementById("statusText"),statusDot=document.querySelector(".dot");let allGames=[],baseUrls=[],currentBlobUrl=null,activeBaseUrl="",isCdnAvailable=!1;const normalize=e=>e.toLowerCase().trim().replace(/\s+/g,"-");async function checkConnectivity(){for(let e of(statusText.textContent="Checking bypass routes...",[{name:"jsDelivr",url:"https://cdn.jsdelivr.net/gh/phexusmath/phexusmath.github.io@main/index.html",base:"jsdelivr"},{name:"GitHack",url:"https://raw.githack.com/phexusmath/phexusmath.github.io/main/index.html",base:"githack"}]))try{let t=await fetch(e.url,{method:"GET",cache:"no-cache"});if(t.ok){let a=await t.text();if(a.includes("<html")||a.includes("<!DOCTYPE")){e.base&&(activeBaseUrl=e.base,isCdnAvailable=!0),statusText.textContent=`${e.name} Linked`,statusDot.className="dot online";return}}}catch(l){console.warn(`${e.name} failed or blocked by CORS/Network.`)}statusText.textContent="Local Mode Only",statusDot.style.backgroundColor="#ff9800"}function getGameBaseUrl(e){let t=baseUrls.find(t=>t.name===e);if(!t)return null;let a=t.url;return(a.includes("githack.com")&&(a=a.replace("raw.githack.com","cdn.jsdelivr.net/gh").replace("rawcdn.githack.com","cdn.jsdelivr.net/gh").replace(/(cdn\.jsdelivr\.net\/gh\/[^\/]+\/[^\/]+)\//,"$1@")),"githack"===activeBaseUrl)?a.replace("https://cdn.jsdelivr.net/gh/","https://raw.githack.com/").replace("@","/"):a}async function loadGame(e){let t=e.url;t.endsWith("/")||(t+="/");try{let a=await fetch(`${t}index.html`),l=await a.text();if(isCdnAvailable){let r=e.cdn;if(r&&"githack"===activeBaseUrl&&(r=r.replace("https://cdn.jsdelivr.net/gh/","https://raw.githack.com/").replace("@","/")),r){let n=`<base href="${r}">`;l=(l=l.replace(/<base[^>]*>/gi,"")).includes("<head>")?l.replace("<head>",`<head>
-    ${n}`):n+l}}currentBlobUrl&&URL.revokeObjectURL(currentBlobUrl);let s=new Blob([l],{type:"text/html"});currentBlobUrl=URL.createObjectURL(s),gameFrame.src=currentBlobUrl,libraryEl.style.display="none",viewportEl.style.display="flex"}catch(i){console.error("Load Error:",i)}}async function init(){await checkConnectivity();try{let e=await fetch("base_urls.json");e.ok&&(baseUrls=await e.json());let t=await fetch("list.json");if(!t.ok)throw Error("list.json not found");let a=await t.json();allGames=a.sort((e,t)=>e.name.localeCompare(t.name)),renderGrid(allGames)}catch(l){gridEl.innerHTML='<p style="color:white;">Error: Could not load list.json</p>'}}function renderGrid(e){gridEl.innerHTML="",gridEl.classList.remove("loading-state"),e.forEach(e=>{let t=document.createElement("div");t.className="game-card",t.innerHTML=`<h3>${e.name}</h3> <i class="fas fa-play-circle"></i>`,t.onclick=()=>loadGame(e),gridEl.appendChild(t)})}searchInput.oninput=e=>{let t=e.target.value.toLowerCase(),a=allGames.filter(e=>e.name.toLowerCase().includes(t));renderGrid(a)},document.getElementById("fullscreen-btn").onclick=()=>{gameFrame.requestFullscreen?gameFrame.requestFullscreen():gameFrame.webkitRequestFullscreen&&gameFrame.webkitRequestFullscreen()},document.getElementById("back-to-hub").onclick=()=>{viewportEl.style.display="none",libraryEl.style.display="block",gameFrame.src="about:blank"},init();
+const gridEl = document.getElementById("game-grid"),
+    viewportEl = document.getElementById("game-viewport"),
+    libraryEl = document.getElementById("library-hub"),
+    gameFrame = document.getElementById("gameFrame"),
+    searchInput = document.getElementById("gameSearch"),
+    statusText = document.getElementById("statusText"),
+    statusDot = document.querySelector(".dot");
+let allGames = [],
+    baseUrls = [],
+    currentBlobUrl = null,
+    activeBaseUrl = "",
+    isCdnAvailable = !1;
+const normalize = e => e.toLowerCase().trim().replace(/\s+/g, "-");
+async function checkConnectivity() {
+    for (let e of (statusText.textContent = "Checking bypass routes...", [{
+            name: "jsDelivr",
+            url: "https://cdn.jsdelivr.net/gh/phexusmath/phexusmath.github.io@main/index.html",
+            base: "jsdelivr"
+        }, {
+            name: "GitHack",
+            url: "https://raw.githack.com/phexusmath/phexusmath.github.io/main/index.html",
+            base: "githack"
+        }])) try {
+        let t = await fetch(e.url, {
+            method: "GET",
+            cache: "no-cache"
+        });
+        if (t.ok) {
+            let a = await t.text();
+            if (a.includes("<html") || a.includes("<!DOCTYPE")) {
+                e.base && (activeBaseUrl = e.base, isCdnAvailable = !0), statusText.textContent = `${e.name} Linked`, statusDot.className = "dot online";
+                return
+            }
+        }
+    } catch (l) {
+        console.warn(`${e.name} failed or blocked by CORS/Network.`)
+    }
+    statusText.textContent = "Local Mode Only", statusDot.style.backgroundColor = "#ff9800"
+}
+
+function getGameBaseUrl(e) {
+    let t = baseUrls.find(t => t.name === e);
+    if (!t) return null;
+    let a = t.url;
+    return (a.includes("githack.com") && (a = a.replace("raw.githack.com", "cdn.jsdelivr.net/gh").replace("rawcdn.githack.com", "cdn.jsdelivr.net/gh").replace(/(cdn\.jsdelivr\.net\/gh\/[^\/]+\/[^\/]+)\//, "$1@")), "githack" === activeBaseUrl) ? a.replace("https://cdn.jsdelivr.net/gh/", "https://raw.githack.com/").replace("@", "/") : a
+}
+async function loadGame(e) {
+    let t = e.url;
+    t.endsWith("/") || (t += "/");
+    try {
+        let a = await fetch(`${t}index.html`),
+            l = await a.text();
+
+        const isCompletePath = window.location.pathname.includes('/complete');
+        
+        if (isCdnAvailable || isCompletePath) {
+            let r = e.cdn;
+
+            if (isCompletePath) {
+                r = "https://phexusmath.github.io/"; 
+            } else if (r && "githack" === activeBaseUrl) {
+                r = r.replace("https://cdn.jsdelivr.net/gh/", "https://raw.githack.com/").replace("@", "/");
+            }
+
+            if (r) {
+                let n = `<base href="${r}">`;
+                l = (l = l.replace(/<base[^>]*>/gi, "")).includes("<head>") 
+                    ? l.replace("<head>", `<head>\n    ${n}`) 
+                    : n + l;
+            }
+        }
+
+        currentBlobUrl && URL.revokeObjectURL(currentBlobUrl);
+        let s = new Blob([l], {
+            type: "text/html"
+        });
+        currentBlobUrl = URL.createObjectURL(s), gameFrame.src = currentBlobUrl, libraryEl.style.display = "none", viewportEl.style.display = "flex"
+    } catch (i) {
+        console.error("Load Error:", i)
+    }
+}
+async function init() {
+    await checkConnectivity();
+    try {
+        let e = await fetch("base_urls.json");
+        e.ok && (baseUrls = await e.json());
+        let t = await fetch("list.json");
+        if (!t.ok) throw Error("list.json not found");
+        let a = await t.json();
+        allGames = a.sort((e, t) => e.name.localeCompare(t.name)), renderGrid(allGames)
+    } catch (l) {
+        gridEl.innerHTML = '<p style="color:white;">Error: Could not load list.json</p>'
+    }
+}
+
+function renderGrid(e) {
+    gridEl.innerHTML = "", gridEl.classList.remove("loading-state"), e.forEach(e => {
+        let t = document.createElement("div");
+        t.className = "game-card", t.innerHTML = `<h3>${e.name}</h3> <i class="fas fa-play-circle"></i>`, t.onclick = () => loadGame(e), gridEl.appendChild(t)
+    })
+}
+searchInput.oninput = e => {
+    let t = e.target.value.toLowerCase(),
+        a = allGames.filter(e => e.name.toLowerCase().includes(t));
+    renderGrid(a)
+}, document.getElementById("fullscreen-btn").onclick = () => {
+    gameFrame.requestFullscreen ? gameFrame.requestFullscreen() : gameFrame.webkitRequestFullscreen && gameFrame.webkitRequestFullscreen()
+}, document.getElementById("back-to-hub").onclick = () => {
+    viewportEl.style.display = "none", libraryEl.style.display = "block", gameFrame.src = "about:blank"
+}, init();
