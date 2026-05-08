@@ -2,8 +2,6 @@
 
 most games are now broken because of that fact essential scripts (ytgame.js,poki-sdk.js , yandex-sdk.js) is not loading properly. When you see these scripts be loaded, modify it go to phexusmath.github.io/files/script-name.js.
 
-Some of the youtube playables games are broken. I can fix them all when i get home so dont even tip dawg.
-
 How to add games to the files. 
 
 Step one find a game from github. 
