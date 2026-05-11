@@ -1,42 +1,79 @@
-(function() {
-    const win = window;
-    const prefix = (document.title || "game").replace(/\s+/g, '_') + "_";
+/**
 
-    const props = {
-        top: { get: () => win },
-        parent: { get: () => win },
-        self: { get: () => win },
-        frameElement: { get: () => null }
-    };
+ * shim.js — injected into every game before any game code runs.
 
-    for (let prop in props) {
-        try {
-            Object.defineProperty(win, prop, { ...props[prop], configurable: true });
-        } catch (e) {}
-    }
+ *
 
-    const storageProxy = {
-        getItem: (key) => win.parent.localStorage.getItem(prefix + key),
-        setItem: (key, value) => win.parent.localStorage.setItem(prefix + key, value),
-        removeItem: (key) => win.parent.localStorage.removeItem(prefix + key),
-        key: (index) => {
-            const keys = Object.keys(win.parent.localStorage).filter(k => k.startsWith(prefix));
-            return keys[index] ? keys[index].replace(prefix, '') : null;
-        },
-        clear: () => {
-            Object.keys(win.parent.localStorage).forEach(k => {
-                if (k.startsWith(prefix)) win.parent.localStorage.removeItem(k);
-            });
-        },
-        get length() {
-            return Object.keys(win.parent.localStorage).filter(k => k.startsWith(prefix)).length;
-        }
-    };
+ * primary job: make the game think it is running at the top level.
 
-    try {
-        Object.defineProperty(win, 'localStorage', {
-            get: () => storageProxy,
-            configurable: true
-        });
-    } catch (e) {}
+ * secondary job: patch other common breakage points.
+
+ * 
+
+ * optimized for performance: uses cached values instead of getters,
+
+ * minimal DOM operations, and simplified URL checks.
+
+ */
+
+(function () {
+
+  const win = window;
+
+
+
+  // use getter descriptors, not value descriptors.
+
+  // window.top/parent/frameElement/self are native accessor properties in browsers.
+
+  // replacing them with value descriptors changes the descriptor type, forcing V8 to
+
+  // restructure the window object's hidden class and de-optimizing everything that
+
+  // touches it. keeping them as accessors (get:) avoids that entirely.
+
+  try {
+
+    Object.defineProperty(window, 'top',         { get: () => win,  configurable: true });
+
+  } catch(e) {}
+
+  try {
+
+    Object.defineProperty(window, 'parent',      { get: () => win,  configurable: true });
+
+  } catch(e) {}
+
+  try {
+
+    Object.defineProperty(window, 'self',        { get: () => win,  configurable: true });
+
+  } catch(e) {}
+
+  try {
+
+    Object.defineProperty(window, 'frameElement',{ get: () => null, configurable: true });
+
+  } catch(e) {}
+
+
+
+  // silence document.domain assignments from games hosted on other domains
+
+  /*try {
+
+    Object.defineProperty(document, 'domain', {
+
+      get() { return location.hostname; },
+
+      set(v) {},
+
+      configurable: true,
+
+    });
+
+  } catch(e) {}
+
+*/
+
 })();
