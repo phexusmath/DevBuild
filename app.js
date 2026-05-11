@@ -31,43 +31,57 @@ async function getShimSource() {
 const normalize = e => e.toLowerCase().trim().replace(/\s+/g, "-");
 
 async function checkConnectivity() {
-    statusText.textContent = "Checking bypass routes...";
+    statusText.textContent = "Negotiating connection...";
+    
     const routes = [
-        {
-            name: "jsDelivr",
-            url: "https://cdn.jsdelivr.net/gh/phexusmath/phexusmath.github.io@main/index.html",
-            base: "jsdelivr"
-        },
-        {
-            name: "GitHack",
-            url: "https://raw.githack.com/phexusmath/phexusmath.github.io/main/index.html",
-            base: "githack"
-        },
-        {
-            name: "raw.githubusercontent",
-            url: "https://raw.githubusercontent.com/phexusmath/phexusmath.github.io/main/index.html",
-            base: "rawgithub"
-        }
+        { name: "jsDelivr", url: "https://cdn.jsdelivr.net/gh/phexusmath/phexusmath.github.io@main/index.html", base: "jsdelivr" },
+        { name: "GitHack", url: "https://raw.githack.com/phexusmath/phexusmath.github.io/main/index.html", base: "githack" },
+        { name: "GitHub Raw", url: "https://raw.githubusercontent.com/phexusmath/phexusmath.github.io/main/index.html", base: "rawgithub" }
     ];
-    for (let e of routes) {
+
+    const parser = new DOMParser();
+
+    for (const route of routes) {
         try {
-            let t = await fetch(e.url, { method: "GET", cache: "no-cache" });
-            if (t.ok) {
-                let a = await t.text();
-                if (a.includes("<html") || a.includes("<!DOCTYPE")) {
-                    activeBaseUrl = e.base;
+            // Using a timeout to prevent the UI from hanging too long on a dead route
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+            const response = await fetch(route.url, { 
+                method: "GET", 
+                cache: "no-cache",
+                signal: controller.signal 
+            });
+            
+            clearTimeout(timeoutId);
+
+            if (response.ok) {
+                const htmlString = await response.text();
+                const doc = parser.parseFromString(htmlString, "text/html");
+                const pageTitle = doc.querySelector("title")?.textContent || "";
+
+                // Verification: Ensure it's actually our app and not a block page
+                if (pageTitle.includes("Phexus Math")) {
+                    activeBaseUrl = route.base;
                     isCdnAvailable = true;
-                    statusText.textContent = `${e.name} Linked`;
+                    
+                    statusText.textContent = `Verified: ${route.name}`;
                     statusDot.className = "dot online";
+                    console.log(`%c[Connected] %cHandshake successful via ${route.name}`, "color: #4caf50; font-weight: bold", "color: inherit");
                     return;
+                } else {
+                    console.warn(`[Security] ${route.name} returned an unrecognized page. Possible interception.`);
                 }
             }
-        } catch (l) {
-            console.warn(`${e.name} failed or blocked by CORS/Network.`);
+        } catch (error) {
+            console.error(`[Network] ${route.name} is unreachable. (Mode: ${error.name === 'AbortError' ? 'Timeout' : 'Blocked'})`);
         }
     }
-    statusText.textContent = "Local Mode Only";
-    statusDot.style.backgroundColor = "#ff9800";
+
+    // Fallback State
+    statusText.textContent = "Offline / Local Mode";
+    statusDot.className = "dot warning"; // Assuming you have a CSS class for warning colors
+    statusDot.style.backgroundColor = "#ff9800"; 
 }
 
 // Convert a jsDelivr URL to the active CDN provider's equivalent.
